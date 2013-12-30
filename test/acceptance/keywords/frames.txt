@@ -25,6 +25,18 @@ Page Should Contain Text Within Frames should also work with iframes
   Page Should contain  You're looking at right.
   Page Should Contain  Links
 
+Page Should Contain Text Within Nested Frames
+  [setup]  Go To Page "frames/nested_frameset.html"
+  Page Should Contain  You're looking at lower-left of the top-left.
+  Page Should Contain  You're looking at lower-right of the top-left.
+  Page Should Not Contain  You're looking at bottom-right.
+  Run Keyword And Expect Error  Page should not have contained text 'You're looking at lower-right of the top-left.'
+  ...  Page Should Not Contain  You're looking at lower-right of the top-left.
+
+Page Should Contain Element Within Nested Frames
+  [setup]  Go To Page "frames/nested_frameset.html"
+  Page Should Contain Element  some_id
+  Run Keyword And Expect Error  Page should have contained element 'non-existent' but did not  Page Should Contain Element  non-existent
 
 Select And Unselect Frame
   [Documentation]  LOG 2 Selecting frame 'left'.
@@ -33,6 +45,22 @@ Select And Unselect Frame
   Unselect Frame
   Select Frame  right
   Current Frame Contains  You're looking at foo.
+
+Select And Unselect Nested Frames
+  [setup]  Go To Page "frames/nested_frameset.html"
+  Select Frame  right
+  Current Frame Contains  You're looking at right.
+  Current Frame Should Not Contain  You're looking at top-left.
+  Unselect Frame
+  Select Frame  lower-left_top-left
+  Current Frame Contains  You're looking at lower-left of the top-left.
+  Current Frame Should Not Contain  You're looking at right.
+  Current Frame Should Not Contain  You're looking at lower-right of the top-left.
+  Page Should Contain  You're looking at right.
+  Select Frame  top-left
+  Current Frame Contains  You're looking at top-left.
+  Current Frame Should Not Contain  You're looking at lower-right of the top-left.
+  Current Frame Should Not Contain  You're looking at lower-left of the top-left.
 
 Select And Unselect Frame should also work with iframes
   [Documentation]   Selecting frame leftiframe

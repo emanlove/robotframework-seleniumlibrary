@@ -44,6 +44,10 @@ Radio Button Should Not Be Selected
     Radio Button Should Not Be Selected  referrer
     Run Keyword And Expect Error  Radio button group 'sex' should not have had selection, but 'female' was selected  Radio Button Should Not Be Selected  sex
 
+Select Non-Existing Radio Button
+    Run Keyword And Expect Error  *
+    ...    Select Radio Button  referrer  radio
+
 Clicking Radio Button Should Trigger Onclick Event
     [Setup]  Go To Page "javascript/dynamic_content.html"
     Select Radio Button  group  title

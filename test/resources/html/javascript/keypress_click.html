@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>keyCode example</title>
+
+<style>
+  .pressed { display: inline; }
+  .released { display: none; }
+</style>
+
+<script type="text/javascript">
+
+//window.onmouseup = showButtonClick(event);
+  
+function showKeyPressed(e) {
+var key = document.getElementById(e.keyCode);
+key.style.display = "inline";
+//alert( "keyCode for the key pressed: " + e.keyCode + "\n" );
+e.preventDefault();
+e.returnValue = false;
+e.stopPropagation();
+}
+
+function showKeyReleased(e) {
+var key = document.getElementById(e.keyCode);
+key.style.display = "none";
+//alert( "keyCode for the key pressed: " + e.keyCode + "\n" );
+}
+
+var showButtonClick = function (e) {
+    // Handle different event models
+    var e = e || window.event;
+    var btnCode;
+
+    if ('object' === typeof e) {
+        btnCode = e.button;
+
+        switch (btnCode) {
+            case 0:
+                alert('Left button clicked.');
+            break;
+            case 1:
+                alert('Middle button clicked.');
+            break;
+            case 2:
+                alert('Right button clicked.');
+            break;
+            default:
+                alert('Unexpected code: ' + btnCode);
+         }
+    }
+}
+
+</script>
+</head>
+
+<body onmouseup="showButtonClick(event);"; onkeydown="showKeyPressed(event);" onkeyup="showKeyReleased(event);">
+<p>Press any key.</p>
+<ul>
+  <li>alt <span id="18" class="released">Pressed<span></li>
+  <li>ctrl <span id="17" class="released">Pressed<span></li>
+  <li>shift <span id="16" class="released">Pressed<span></li>
+</ul>
+<p>Click any button.</p>
+<ul>
+  <li>Button 1 <span id="18" class="released">Pressed<span></li>
+  <li>Button 2 <span id="17" class="released">Pressed<span></li>
+  <li>Button 3 <span id="16" class="released">Pressed<span></li>
+</ul>
+</body>
+</html>

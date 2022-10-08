@@ -3,7 +3,7 @@ import argparse
 import os
 import shutil
 import sys
-from os.path import abspath, dirname, join
+from os.path import join
 from pathlib import Path
 
 from pytest import main as py_main
@@ -39,7 +39,8 @@ def run_unit_tests(reporter, reporter_args, suite, verbose):
         py_args.insert(1, f"--approvaltests-add-reporter-args={reporter_args}")
     try:
         result = py_main(py_args)
-    except Exception:
+    except Exception as error:
+        print(f"Suppressed error: {error}")
         result = 254
     finally:
         sys.path.pop(0)

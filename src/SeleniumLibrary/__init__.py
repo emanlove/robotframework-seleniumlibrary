@@ -51,7 +51,7 @@ from SeleniumLibrary.locators import ElementFinder
 from SeleniumLibrary.utils import LibraryListener, is_truthy, _convert_timeout
 
 
-__version__ = "5.1.1.dev1"
+__version__ = "6.1.0.dev1"
 
 
 class SeleniumLibrary(DynamicCore):
@@ -136,6 +136,7 @@ class SeleniumLibrary(DynamicCore):
     | link         | Exact text a link has.              | ``link:The example``           |
     | partial link | Partial link text.                  | ``partial link:he ex``         |
     | sizzle       | Sizzle selector deprecated.         | ``sizzle:div.example``         |
+    | data         | Element ``data-*`` attribute        | ``data:id:my_id``              |
     | jquery       | jQuery expression.                  | ``jquery:div.example``         |
     | default      | Keyword specific default behavior.  | ``default:example``            |
 
@@ -171,6 +172,9 @@ class SeleniumLibrary(DynamicCore):
       the system under test contains the jQuery library.
     - Prior to SeleniumLibrary 3.0, table related keywords only supported
       ``xpath``, ``css`` and ``sizzle/jquery`` strategies.
+    - ``data`` strategy is conveniance locator that will construct xpath from the parameters.
+      If you have element like `<div data-automation="automation-id-2">`, you locate the element via
+      ``data:automation:automation-id-2``. This feature was added in SeleniumLibrary 5.2.0
 
     === Implicit XPath strategy ===
 
@@ -544,7 +548,10 @@ class SeleniumLibrary(DynamicCore):
             return
         try:
             self._running_on_failure_keyword = True
-            BuiltIn().run_keyword(self.run_on_failure_keyword)
+            if self.run_on_failure_keyword.lower() == "capture page screenshot":
+                self.capture_page_screenshot()
+            else:
+                BuiltIn().run_keyword(self.run_on_failure_keyword)
         except Exception as err:
             logger.warn(
                 f"Keyword '{self.run_on_failure_keyword}' could not be run on failure: {err}"

@@ -21,7 +21,7 @@ Mouse Down On Link
 
 Execute Javascript
     [Documentation]
-    ...    LOG 2 Executing JavaScript:
+    ...    LOG 1 Executing JavaScript:
     ...    window.add_content('button_target', 'Inserted directly')
     ...    Without any arguments.
     Execute Javascript    window.add_content('button_target', 'Inserted directly')
@@ -37,7 +37,7 @@ Execute Javascript With ARGUMENTS and JAVASCRIPT Marker
 
 Execute Javascript With JAVASCRIPT and ARGUMENTS Marker
     [Documentation]
-    ...    LOG 2 Executing JavaScript:
+    ...    LOG 1 Executing JavaScript:
     ...    alert(arguments[0]);
     ...    By using argument:
     ...    '123'
@@ -50,7 +50,7 @@ Execute Javascript With JAVASCRIPT and ARGUMENTS Marker
 
 Execute Javascript With ARGUMENTS Marker Only
     [Documentation]
-    ...    LOG 2 Executing JavaScript:
+    ...    LOG 1 Executing JavaScript:
     ...    alert(arguments[0]);
     ...    By using arguments:
     ...    '123' and '0987'
@@ -61,10 +61,18 @@ Execute Javascript With ARGUMENTS Marker Only
     ...  0987
     Alert Should Be Present    123    timeout=10 s
 
+Execute Javascript With ARGUMENTS Marker And WebElement
+    ${body_webelement} =    Get WebElement  css:body
+    ${tag_name} =    Execute Javascript
+    ...  return arguments[0].tagName;
+    ...  ARGUMENTS
+    ...  ${body_webelement}
+    Should Be Equal As Strings  ${tag_name}  body  ignore_case=True
+
 Execute Javascript from File
     [Documentation]
-    ...    LOG 2:1 REGEXP: Reading JavaScript from file .*executed_by_execute_javascript.*
-    ...    LOG 2:2 Executing JavaScript:
+    ...    LOG 1:1 REGEXP: Reading JavaScript from file .*executed_by_execute_javascript.*
+    ...    LOG 1:2 Executing JavaScript:
     ...    window.add_content('button_target', 'Inserted via file')
     ...    Without any arguments.
     Execute Javascript    ${CURDIR}/executed_by_execute_javascript.js

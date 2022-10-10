@@ -116,11 +116,13 @@ Test Minimize and Maximize Will Actually Move and Resize Window
 
     Minimize Browser Window
 
+    Wait For Condition    return document.hidden;
     ${isHidden}=    Execute Javascript   return document.hidden;
     Should Be True  ${isHidden}
 
     Maximize Browser Window
 
+    Wait For Condition    return !document.hidden;
     ${isHidden}=    Execute Javascript   return document.hidden;
     Should Not Be True  ${isHidden}
 

@@ -190,6 +190,7 @@ class WindowKeywords(LibraryComponent):
     def minimize_browser_window(self):
         """Minimizes current browser window."""
         self.driver.minimize_window()
+        self.driver.set_window_size(0, 0)
 
     @keyword
     def get_window_size(self, inner: bool = False) -> Tuple[float, float]:

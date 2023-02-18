@@ -733,6 +733,30 @@ def test_locator_split(finder: ElementFinder, reporter: GenericDiffReporterFacto
     verify_all("Split multi locator", results, reporter=reporter)
 
 
+def test_relative_locator_split(finder: ElementFinder, reporter: GenericDiffReporterFactory):
+    results = [
+        finder._split_locator('//*[text(), " >> "] >> css:foobar >> id:tidii'),
+        finder._split_locator('//*[text(), " >> "] >leftof> css:foobar >rightof> id:tidii'),
+        finder._split_locator(
+            "identifier:id >> id=name >> name=id >> xpath://a >> dom=name >> link=id >> partial link=something >> "
+            'css=#name >> class:name >> jquery=dom.find("foobar") >> sizzle:query.find("tidii") >> '
+            "tag:name >> scLocator:tidii"
+        ),
+        finder._split_locator(['//*[text(), " >> "]', "css:foobar", "tidii"]),
+        finder._split_locator("xpath://* >> xpath://div"),
+        finder._split_locator("xpath://* >above> xpath://div"),
+        finder._split_locator("xpath://* >below> xpath://div"),
+        finder._split_locator("xpath://* >leftof> xpath://div"),
+        finder._split_locator("xpath://* >rightof> xpath://div"),
+        finder._split_locator("xpath://* >near> xpath://div"),
+        finder._split_locator("xpath://* >lEftOf> xpath://div"),
+        finder._split_locator("xpath://* >lefto> xpath://div"),
+        finder._split_locator("xpath://* >unknown> xpath://div"),
+        finder._split_locator("xpath://* > > xpath://div"),
+    ]
+    verify_all("Split multi relative locator", results, reporter=reporter)
+
+
 def test_locator_split_with_non_strings(finder: ElementFinder):
     assert finder._split_locator([]) == []
     assert finder._split_locator(None) == [None]

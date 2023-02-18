@@ -76,6 +76,14 @@ class ElementFinder(ContextAware):
             re.IGNORECASE,
         )
 
+        self._split_relloc_re = re.compile(
+            r" >(above|below|leftof|rightof|near|)(?:>) "
+            r"(?=identifier ?[:|=]|id ?[:|=]|name ?[:|=]|xpath ?[:|=]|dom ?[:|=]"
+            r"|link ?[:|=]|partial link ?[:|=]|css ?[:|=]|class ?[:|=]|jquery ?[:|=]"
+            r"|sizzle ?[:|=]|tag ?[:|=]|scLocator ?[:|=])",
+            re.IGNORECASE,
+        )
+
     def find(
         self,
         locator: Union[str, list],
@@ -97,15 +105,18 @@ class ElementFinder(ContextAware):
             return locator
         if not isinstance(locator, str):
             return [locator]
-        match = self._split_re.search(locator)
+        match = self._split_relloc_re.search(locator)
         if not match:
             return [locator]
         parts = []
+        relative_position = []
         while match:
             span = match.span()
+            groups = match.groups()
             parts.append(locator[: span[0]])
+            relative_position.append(groups[0])
             locator = locator[span[1] :]
-            match = self._split_re.search(locator)
+            match = self._split_relloc_re.search(locator)
         parts.append(locator)
         return parts
 

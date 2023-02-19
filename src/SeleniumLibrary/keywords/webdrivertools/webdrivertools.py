@@ -19,10 +19,11 @@ import inspect
 import os
 import token
 import warnings
+from io import StringIO
 from tokenize import generate_tokens
 
 from robot.api import logger
-from robot.utils import ConnectionCache, StringIO
+from robot.utils import ConnectionCache
 from selenium import webdriver
 from selenium.webdriver import FirefoxProfile
 
@@ -227,7 +228,7 @@ class WebDriverCreator:
         log_file = self._get_log_path(
             os.path.join(self.log_dir, "geckodriver-{index}.log")
         )
-        logger.info(f"Firefox driver log is always forced to to: {log_file}")
+        logger.trace(f"Firefox driver log is always forced to to: {log_file}")
         return log_file
 
     def create_headless_firefox(
@@ -284,7 +285,7 @@ class WebDriverCreator:
         remote_url,
         options=None,
         service_log_path=None,
-        executable_path="MicrosoftWebDriver.exe",
+        executable_path="msedgedriver",
     ):
         if remote_url:
             defaul_caps = webdriver.DesiredCapabilities.EDGE.copy()

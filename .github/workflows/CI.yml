@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8, 3.11]  # 3.12, pypy-3.9
-        rf-version: [4.1.3, 5.0.1, 6.0.1, 6.1.1]
+        rf-version: ['>=5,<6','>=6,<7']
 
     steps:
     - uses: actions/checkout@v3
@@ -44,7 +44,7 @@ jobs:
         pip install requests robotframework-pabot
     - name: Install RF ${{ matrix.rf-version }}
       run: |
-        pip install -U --pre robotframework==${{ matrix.rf-version }}
+        pip install -U --pre robotframework${{ matrix.rf-version }}
     - name: Install drivers via selenium-manager
       run: |
         SELENIUM_MANAGER_EXE=$(python -c 'from selenium.webdriver.common.selenium_manager import SeleniumManager; sm=SeleniumManager(); print(f"{str(sm.get_binary())}")')
@@ -66,17 +66,19 @@ jobs:
       run: |
         xvfb-run --auto-servernum python atest/run.py --zip chrome
 
-    # Recognize for the moment this will NOT run as we aren't using Python 3.9
+    # Recognize for the moment this will NOT run using rf-version in the format of `>=5,<6`
     - name: Run tests with headless Firefox with Python 3.9 and RF 4.1.3
       if: matrix.python-version == '3.9' && matrix.rf-version == '4.1.3'
       run: |
         xvfb-run --auto-servernum python atest/run.py --zip headlessfirefox
 
+    # Recognize for the moment this will NOT run using rf-version in the format of `>=5,<6`
     - name: Run tests with normal Firefox with Python 3.9 and RF != 4.1.3
       if: matrix.python-version == '3.9' && matrix.rf-version != '4.1.3'
       run: |
         xvfb-run --auto-servernum python atest/run.py --zip firefox
 
+    # Recognize for the moment this will NOT run using rf-version in the format of `>=5,<6`
     # - name: Run tests with Selenium Grid
     #   if: matrix.python-version == '3.11' && matrix.rf-version == '3.2.2' && matrix.python-version != 'pypy-3.7'
     #   run: |

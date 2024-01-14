@@ -68,3 +68,14 @@ Chrome Browser with Selenium Options With A Missing Semicolon
     Run Keyword And Expect Error    ValueError: Unable to parse option: "add_argument ( "--disable-dev-shm-usage" ) add_argument ( "--headless=new" )"
     ...    Open Browser    ${FRONT PAGE}    ${BROWSER}    remote_url=${REMOTE_URL}
     ...    desired_capabilities=${DESIRED_CAPABILITIES}    options=add_argument ( "--disable-dev-shm-usage" ) add_argument ( "--headless=new" )
+
+Complex Selenium Options Using Create Dictionary
+    [Tags]  Triage
+    ${Prefs}=  Create Dictionary  profile.default_content_settings.popups=0, download.default_directory=r"C:\\Users\\me\\test_downloads",download.prompt_for_download:False
+    Open Browser    about:blank    Chrome    alias=UserCreateDict
+    ...    options=add_argument("--disable-popup-blocking"); add_argument("--ignore-certificate-errors"); add_argument("--disable-gpu"); add_argument("--disable-dev-shm-usage"); add_argument("--no-sandbox");add_argument("--disable-proxy-certificate-handler");add_experimental_option("prefs", ${Prefs})
+
+Complex Selenium Options Using Options String
+    [Tags]  Triage
+    Open Browser    about:blank    Chrome    alias=UserCreateStr
+    ...    options=add_argument("--disable-popup-blocking"); add_argument("--ignore-certificate-errors"); add_argument("--disable-gpu"); add_argument("--disable-dev-shm-usage"); add_argument("--no-sandbox");add_argument("--disable-proxy-certificate-handler");add_experimental_option("prefs", { 'profile.default_content_settings.popups' : 0 ; 'download.default_directory' : r"C:\\Users\\me\\test_downloads" ; 'download.prompt_for_download' : False } )

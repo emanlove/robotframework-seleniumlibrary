@@ -56,8 +56,8 @@ class FireFoxProfileParsingTests(unittest.TestCase):
 
     def _parse_result(self, result):
         to_str = ""
-        if "key1" in result.default_preferences:
-            to_str = f"{to_str} key1 {result.default_preferences['key1']}"
-        if "key2" in result.default_preferences:
-            to_str = f"{to_str} key2 {result.default_preferences['key2']}"
+        if "key1" in result._desired_preferences:
+            to_str = f"{to_str} key1 {result._desired_preferences['key1']}"
+        if "key2" in result._desired_preferences:
+            to_str = f"{to_str} key2 {result._desired_preferences['key2']}"
         self.results.append(to_str)

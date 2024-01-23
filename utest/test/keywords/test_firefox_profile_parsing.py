@@ -57,7 +57,7 @@ class FireFoxProfileParsingTests(unittest.TestCase):
     def _parse_result(self, result):
         to_str = ""
         # handle change made in selenium 4.17.2 with Firefox profiles
-        if hasattr(result, _desired_preferences):
+        if hasattr(result, '_desired_preferences'):
             # selenium v4.17.2+
             pref_attrib = '_desired_preferences'
         else:

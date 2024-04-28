@@ -26,9 +26,12 @@ from selenium.webdriver.support.event_firing_webdriver import EventFiringWebDriv
 from SeleniumLibrary.base import keyword, LibraryComponent
 from SeleniumLibrary.locators import WindowManager
 from SeleniumLibrary.utils import timestr_to_secs, secs_to_timestr, _convert_timeout, _convert_delay
+from SeleniumLibrary.utils.path_formatter import _format_path_any
 
 from .webdrivertools import WebDriverCreator
+from ..utils import LogType
 
+DEFAULT_FILENAME_LOG = "{type}-log-{index}.txt"
 
 class BrowserManagementKeywords(LibraryComponent):
     def __init__(self, ctx):
@@ -551,6 +554,36 @@ class BrowserManagementKeywords(LibraryComponent):
         title = self.get_title()
         self.info(title)
         return title
+
+    @keyword
+    def get_log(self, type: LogType = None):    # filename, robotlog
+        """Gets the log for a given log type"""
+        log = self.driver.get_log(type)
+        self._save_log_to_file(DEFAULT_FILENAME_LOG, type, log)
+
+    def _save_log_to_file(self, filename, type, log):
+        path = self._get_log_path(filename, type)
+        self._create_directory(path)
+        with open(path, 'w', encoding='utf-8') as fh:
+            fh.write(log)
+
+    def _get_log_path(self, filename, type):
+        filename = filename.replace("/", os.sep)
+        filename = _format_path_any(filename, "type", type)
+        index = 0
+        while True:
+            index += 1
+            formatted = _format_path_any(filename, 'index', index)
+            path = os.path.join(directory, formatted)
+            # filename didn't contain {index} or unique path was found
+            if formatted == filename or not os.path.exists(path):
+                return path
+
+    def _create_directory(self, path):
+        target_dir = os.path.dirname(path)
+        if not os.path.exists(target_dir):
+            os.makedirs(target_dir)
+
 
     @keyword
     def title_should_be(self, title: str, message: Optional[str] = None):

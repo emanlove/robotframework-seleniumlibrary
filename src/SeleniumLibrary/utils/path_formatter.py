@@ -18,6 +18,10 @@
 def _format_path(file_path, index):
     return file_path.format_map(_SafeFormatter(index=index))
 
+def _format_path_any(file_path, key, value):
+    d={}; d[key] = value
+    return file_path.format_map(_SafeFormatter(d))
+
 
 class _SafeFormatter(dict):
     def __missing__(self, key):

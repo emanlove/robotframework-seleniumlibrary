@@ -16,6 +16,7 @@
 import os
 from datetime import timedelta
 from typing import Any
+from enum import Enum
 
 from robot.utils import is_string, timestr_to_secs
 from robot.utils import is_truthy, is_falsy  # noqa
@@ -44,3 +45,12 @@ def _convert_timeout(timeout):
 
 def type_converter(argument: Any) -> str:
     return type(argument).__name__.lower()
+
+
+class LogType(Enum):
+    """Enum that defines the type of log retrieved"""
+
+    BROWSER = "browser"
+    DRIVER  = "driver"
+    CLIENT  = "client"
+    SERVER  = "server"

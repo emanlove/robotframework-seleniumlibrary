@@ -25,6 +25,7 @@ from .types import (
     WINDOWS,
     _convert_timeout,
     _convert_delay,
+    LogType,
 )  # noqa
 
 

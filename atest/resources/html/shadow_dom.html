@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Shadow DOM</title>
+</head>
+<body>
+<div id="on_page">
+    <span>This is on the page DOM</span>
+</div></br>
+<div id="shadow_host"></div></br>
+<div id="delayed_attached"></div>
+<a href="javascript:return false;" onclick="attachAfterDelay(); return false;">Attach with delay</a><br/>
+<div id="closed_host">This is a closed host</div></br>
+<div id="delayed_open"></div></br>
+<a href="javascript:return false;" onclick="openAfterDelay(); return false;">Open with delay</a><br/>
+
+<script>
+    let shadowRoot = document.getElementById('shadow_host').attachShadow({mode: 'open'});
+    shadowRoot.innerHTML = `
+        <span>This is within the shadow dom</span>
+        <div id="nested_shadow_host"></div>
+        <input type="edit" />
+    `;
+
+    let nestedShadowRoot = shadowRoot.getElementById('nested_shadow_host').attachShadow({mode: 'open'});
+    nestedShadowRoot.innerHTML = `
+        <div id="nested_div"><div>This is within a nested shadowDOM</div></div>
+    `;
+</script>
+<script>
+    function attachAfterDelay() {
+        setTimeout('attachShadowDom()', 750)
+    };
+    function attachShadowDom() {
+        let delayedAttachedShadowRoot = document.getElementById('delayed_attached').attachShadow({mode: 'open'});
+
+        delayedAttachedShadowRoot.innerHTML = `
+            <div id="delayed_attached_content">delayed attached</div>
+        `;
+    };
+
+    let delayedOpenShadowRoot = document.getElementById('delayed_open').attachShadow({mode: 'closed'});
+    delayedOpenShadowRoot.innerHTML = `
+        <div id="delayed_opened_content">
+          <div>
+            This is within once/currently closed shadowDOM</br>
+            and will be/has been opened after a delay.
+          </div>
+        </div>
+    `;
+
+    function openAfterDelay() {
+        setTimeout('openShadowDom()', 750)
+    };
+    function openShadowDom() {
+        // delayedOpenShadowRoot.attachShadow({mode: 'open'});
+        document.getElementById('delayed_open').attachShadow({mode: 'open'});
+    };
+</script>
+</body>
+</html>

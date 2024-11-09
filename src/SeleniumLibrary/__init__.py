@@ -604,6 +604,7 @@ class SeleniumLibrary(DynamicCore):
         page_load_timeout=timedelta(minutes=5),
         action_chain_delay=timedelta(seconds=0.25),
         language: Optional[str] = None,
+        shadowdom_piercing = True,
     ):
         """SeleniumLibrary can be imported with several optional arguments.
 
@@ -671,6 +672,7 @@ class SeleniumLibrary(DynamicCore):
         self._drivers = WebDriverCache()
         translation_file = self._get_translation(language)
         DynamicCore.__init__(self, libraries, translation_file)
+        self._shadowdom_piercing = is_truthy(shadowdom_piercing)
 
     def run_keyword(self, name: str, args: tuple, kwargs: dict):
         try:

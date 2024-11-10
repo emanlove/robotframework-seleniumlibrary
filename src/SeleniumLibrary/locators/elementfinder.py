@@ -21,6 +21,7 @@ from robot.utils import NormalizedDict
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.event_firing_webdriver import EventFiringWebElement
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchShadowRootException
 
 from SeleniumLibrary.base import ContextAware
 from SeleniumLibrary.errors import ElementNotFound
@@ -110,6 +111,7 @@ class ElementFinder(ContextAware):
         return parts
 
     def _find(self, locator, tag=None, first_only=True, required=True, parent=None):
+        parent_is_shadowdom_host = False
         element_type = "Element" if not tag else tag.capitalize()
         if parent and not self._is_webelement(parent):
             raise ValueError(
@@ -117,6 +119,13 @@ class ElementFinder(ContextAware):
             )
         if self._is_webelement(locator):
             return locator
+        try:
+            if parent:
+                parent_is_shadowdom_host = parent.shadow_root
+        except NoSuchShadowRootException:
+            pass
+        if parent_is_shadowdom_host:  # and ??._shadowdom_piercing
+            parent = parent_is_shadowdom_host
         prefix, criteria = self._parse_locator(locator)
         strategy = self._strategies[prefix]
         tag, constraints = self._get_tag_and_constraints(tag)

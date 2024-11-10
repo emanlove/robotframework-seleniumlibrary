@@ -11,3 +11,6 @@ Test Setup        Go To Page "shadow_dom.html"
 Multiple Locators with double arrows as separator should work
     [Setup]    Go To Page "links.html"
     Page Should Contain Element    css:div#div_id >> xpath:a[6] >> id:image1_id
+
+Nested Shadow DOM
+    Page Should Contain Element    id:shadow_host >> id:nested_shadow_host >> id:nested_div

@@ -29,6 +29,159 @@ from SeleniumLibrary.utils import escape_xpath_value, events, is_falsy
 from .customlocator import CustomLocator
 
 
+class Finder():
+    def __int__(self):
+        """Placeholder to Finder class instantation method """
+        pass
+
+    def pre_find_action(self):
+        """Placeholder for the pre_find_action method"""
+        pass
+
+    def find(self):
+        """Placeholder for the find method"""
+        pass
+
+    def _is_webelement(self, element):
+        # Hook for unit tests
+        return isinstance(element, (WebElement, EventFiringWebElement))
+
+
+    def _parse_locator(self, locator):
+        if re.match(r"\(*//", locator):
+            return "xpath", locator
+        index = self._get_locator_separator_index(locator)
+        if index != -1:
+            prefix = locator[:index].strip()
+            if prefix in self._strategies:
+                return prefix, locator[index + 1 :].lstrip()
+        return "default", locator
+
+
+class FinderList():
+    def __iter__(self):
+        pass
+
+    def __getitem__(self, item):
+        pass
+
+    def __len__(self):
+        pass
+
+class DefaultFinder(Finder):
+    def find(self, locator, tag=None, first_only=True, required=True, parent=None):
+        element_type = "Element" if not tag else tag.capitalize()
+        if parent and not self._is_webelement(parent):
+            raise ValueError(
+                f"Parent must be Selenium WebElement but it was {type(parent)}."
+            )
+        if self._is_webelement(locator):
+            return locator
+        prefix, criteria = self._parse_locator(locator)
+        strategy = self._strategies[prefix]
+        tag, constraints = self._get_tag_and_constraints(tag)
+        elements = strategy(criteria, tag, constraints, parent=parent or self.driver)
+        if required and not elements:
+            raise ElementNotFound(f"{element_type} with locator '{locator}' not found.")
+        if first_only:
+            if not elements:
+                return None
+            return elements[0]
+        return elements
+
+
+    def _get_tag_and_constraints(self, tag):
+        if tag is None:
+            return None, {}
+        tag = tag.lower()
+        constraints = {}
+        if tag == "link":
+            tag = "a"
+        if tag == "partial link":
+            tag = "a"
+        elif tag == "image":
+            tag = "img"
+        elif tag == "list":
+            tag = "select"
+        elif tag == "radio button":
+            tag = "input"
+            constraints["type"] = "radio"
+        elif tag == "checkbox":
+            tag = "input"
+            constraints["type"] = "checkbox"
+        elif tag == "text field":
+            tag = "input"
+            constraints["type"] = [
+                "date",
+                "datetime-local",
+                "email",
+                "month",
+                "number",
+                "password",
+                "search",
+                "tel",
+                "text",
+                "time",
+                "url",
+                "week",
+                "file",
+            ]
+        elif tag == "file upload":
+            tag = "input"
+            constraints["type"] = "file"
+        elif tag == "text area":
+            tag = "textarea"
+        return tag, constraints
+
+
+class Strategies:
+    def __init__(self):
+        strategies = {
+            "identifier": ElementFinder._find_by_identifier,
+            "id": ElementFinder._find_by_id,
+            "name": ElementFinder._find_by_name,
+            "xpath": ElementFinder._find_by_xpath,
+            "dom": ElementFinder._find_by_dom,
+            "link": ElementFinder._find_by_link_text,
+            "partial link": ElementFinder._find_by_partial_link_text,
+            "css": ElementFinder._find_by_css_selector,
+            "class": ElementFinder._find_by_class_name,
+            "jquery": ElementFinder._find_by_jquery_selector,
+            "sizzle": ElementFinder._find_by_jquery_selector,
+            "tag": ElementFinder._find_by_tag_name,
+            "scLocator": ElementFinder._find_by_sc_locator,
+            "data": ElementFinder._find_by_data_locator,
+            "default": ElementFinder._find_by_default,
+        }
+        self._strategies = NormalizedDict(
+            initial=strategies, caseless=True, spaceless=True
+        )
+        self._default_strategies = list(strategies)
+    def register(self, strategy_name, strategy_keyword, persist=False):
+        strategy = CustomLocator(self.ctx, strategy_name, strategy_keyword)
+        if strategy.name in self._strategies:
+            raise RuntimeError(
+                f"The custom locator '{strategy.name}' cannot be registered. "
+                "A locator of that name already exists."
+            )
+        self._strategies[strategy.name] = strategy.find
+        if is_falsy(persist):
+            # Unregister after current scope ends
+            events.on("scope_end", "current", self.unregister, strategy.name)
+
+    def unregister(self, strategy_name):
+        if strategy_name in self._default_strategies:
+            raise RuntimeError(
+                f"Cannot unregister the default strategy '{strategy_name}'."
+            )
+        if strategy_name not in self._strategies:
+            raise RuntimeError(
+                f"Cannot unregister the non-registered strategy '{strategy_name}'."
+            )
+        del self._strategies[strategy_name]
+
+
+
 class ElementFinder(ContextAware):
     def __init__(self, ctx):
         ContextAware.__init__(self, ctx)

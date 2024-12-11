@@ -134,8 +134,9 @@ class DefaultFinder(Finder):
         return tag, constraints
 
 
-class Strategies:
-    def __init__(self):
+class Strategies(ContextAware):
+    def __init__(self, ctx):
+        ContextAware.__init__(self, ctx)
         strategies = {
             "identifier": ElementFinder._find_by_identifier,
             "id": ElementFinder._find_by_id,

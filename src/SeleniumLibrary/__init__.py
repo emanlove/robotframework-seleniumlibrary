@@ -51,7 +51,7 @@ from SeleniumLibrary.keywords import (
     WindowKeywords,
 )
 from SeleniumLibrary.keywords.screenshot import EMBED
-from SeleniumLibrary.locators import ElementFinder
+from SeleniumLibrary.locators import LocatorElementEngine
 from SeleniumLibrary.utils import LibraryListener, is_truthy, _convert_timeout, _convert_delay
 
 
@@ -640,7 +640,7 @@ class SeleniumLibrary(DynamicCore):
         self._running_on_failure_keyword = False
         self.screenshot_root_directory = screenshot_root_directory
         self._resolve_screenshot_root_directory()
-        self._element_finder = ElementFinder(self)
+        self._loc_elem_engine = LocatorElementEngine(self)
         self._plugin_keywords = []
         libraries = [
             AlertKeywords(self),
@@ -766,7 +766,7 @@ class SeleniumLibrary(DynamicCore):
         :rtype: selenium.webdriver.remote.webelement.WebElement
         :raises SeleniumLibrary.errors.ElementNotFound: If element not found.
         """
-        return self._element_finder.find(locator, parent=parent)
+        return self._loc_elem_engine.find(locator, parent=parent)
 
     def find_elements(
         self, locator: str, parent: WebElement = None
@@ -782,7 +782,7 @@ class SeleniumLibrary(DynamicCore):
         :return: list of found `WebElement` or e,mpty if elements are not found.
         :rtype: list[selenium.webdriver.remote.webelement.WebElement]
         """
-        return self._element_finder.find(
+        return self._loc_elem_engine.find(
             locator, first_only=False, required=False, parent=parent
         )
 

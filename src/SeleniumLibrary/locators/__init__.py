@@ -15,5 +15,5 @@
 # limitations under the License.
 
 from .customlocator import CustomLocator  # noqa
-from .elementfinder import ElementFinder  # noqa
+from .elementfinder import LocatorElementEngine  # noqa
 from .windowmanager import WindowManager  # noqa

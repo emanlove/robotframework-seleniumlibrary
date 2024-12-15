@@ -39,11 +39,11 @@ class ContextAware:
 
     @property
     def element_finder(self):
-        return self.ctx._element_finder
+        return self.ctx._loc_elem_engine
 
     @element_finder.setter
     def element_finder(self, value: Any):
-        self.ctx._element_finder = value
+        self.ctx._loc_elem_engine = value
 
     @property
     def event_firing_webdriver(self):

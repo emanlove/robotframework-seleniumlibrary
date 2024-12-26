@@ -27,35 +27,20 @@ from SeleniumLibrary.errors import ElementNotFound
 from SeleniumLibrary.utils import escape_xpath_value, events, is_falsy
 
 from .customlocator import CustomLocator
+from .utilities import is_webelement, disallow_webelement_parent
 
-
-class Finder():
+class ElementFinder(Protocol):
     def __int__(self):
         """Placeholder to Finder class instantiation method """
-        pass
+        ...
 
     def pre_find_action(self):
         """Placeholder for the pre_find_action method"""
-        pass
+        ...
 
     def find(self):
         """Placeholder for the find method"""
-        pass
-
-    def _is_webelement(self, element):
-        # Hook for unit tests
-        return isinstance(element, (WebElement, EventFiringWebElement))
-
-
-    def _parse_locator(self, locator):
-        if re.match(r"\(*//", locator):
-            return "xpath", locator
-        index = self._get_locator_separator_index(locator)
-        if index != -1:
-            prefix = locator[:index].strip()
-            if prefix in self._strategies:
-                return prefix, locator[index + 1 :].lstrip()
-        return "default", locator
+        ...
 
 
 class FinderList():
@@ -68,14 +53,17 @@ class FinderList():
     def __len__(self):
         pass
 
-class DefaultFinder(Finder):
+class DefaultElementFinder:
+    def pre_find_action(self):
+        pass
+
     def find(self, locator, tag=None, first_only=True, required=True, parent=None):
         element_type = "Element" if not tag else tag.capitalize()
-        if parent and not self._is_webelement(parent):
+        if parent and not is_webelement(parent):
             raise ValueError(
                 f"Parent must be Selenium WebElement but it was {type(parent)}."
             )
-        if self._is_webelement(locator):
+        if is_webelement(locator):
             return locator
         prefix, criteria = self._parse_locator(locator)
         strategy = self._strategies[prefix]
@@ -133,14 +121,6 @@ class DefaultFinder(Finder):
             tag = "textarea"
         return tag, constraints
 
-def _is_webelement(self, element):
-    # Hook for unit tests
-    return isinstance(element, (WebElement, EventFiringWebElement))
-
-def _disallow_webelement_parent(self, element):
-    if _is_webelement(element):
-        raise ValueError("This method does not allow WebElement as parent")
-
 
 class LocatorElementEngine(ContextAware):
     def __init__(self, ctx):
@@ -186,11 +166,11 @@ class LocatorElementEngine(ContextAware):
 
     def _find(self, locator, tag=None, first_only=True, required=True, parent=None):
         element_type = "Element" if not tag else tag.capitalize()
-        if parent and not self._is_webelement(parent):
+        if parent and not is_webelement(parent):
             raise ValueError(
                 f"Parent must be Selenium WebElement but it was {type(parent)}."
             )
-        if self._is_webelement(locator):
+        if is_webelement(locator):
             return locator
         prefix, criteria = self._parse_locator(locator)
         strategy = self._strategies[prefix]
@@ -351,7 +331,7 @@ class Strategies(ContextAware):
         )
 
     def _find_by_dom(self, criteria, tag, constraints, parent):
-        self._disallow_webelement_parent(parent)
+        disallow_webelement_parent(parent)
         result = self.driver.execute_script(f"return {criteria};")
         if result is None:
             return []
@@ -360,7 +340,7 @@ class Strategies(ContextAware):
         return self._filter_elements(result, tag, constraints)
 
     def _find_by_jquery_selector(self, criteria, tag, constraints, parent):
-        self._disallow_webelement_parent(parent)
+        disallow_webelement_parent(parent)
         criteria = criteria.replace("'", "\\'")
         js = f"return jQuery('{criteria}').get();"
         return self._filter_elements(self.driver.execute_script(js), tag, constraints)
@@ -404,7 +384,7 @@ class Strategies(ContextAware):
         return self._find_by_xpath(local_criteria, tag, constraints, parent)
 
     def _find_by_sc_locator(self, criteria, tag, constraints, parent):
-        self._disallow_webelement_parent(parent)
+        disallow_webelement_parent(parent)
         criteria = criteria.replace("'", "\\'")
         js = f"return isc.AutoTest.getElement('{criteria}')"
         return self._filter_elements([self.driver.execute_script(js)], tag, constraints)

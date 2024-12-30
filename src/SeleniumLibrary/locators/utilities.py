@@ -13,12 +13,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support.event_firing_webdriver import EventFiringWebElement
 
-def is_webelement(self, element):
+def is_webelement(element):
     # Hook for unit tests
     return isinstance(element, (WebElement, EventFiringWebElement))
 
-def disallow_webelement_parent(self, element):
+def disallow_webelement_parent(element):
     if is_webelement(element):
         raise ValueError("This method does not allow WebElement as parent")
 

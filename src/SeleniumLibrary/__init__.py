@@ -766,7 +766,7 @@ class SeleniumLibrary(DynamicCore):
         :rtype: selenium.webdriver.remote.webelement.WebElement
         :raises SeleniumLibrary.errors.ElementNotFound: If element not found.
         """
-        return self._loc_elem_engine.find(locator, parent=parent)
+        return self._loc_elem_engine.parse_and_find(locator, parent=parent)
 
     def find_elements(
         self, locator: str, parent: WebElement = None
@@ -782,7 +782,7 @@ class SeleniumLibrary(DynamicCore):
         :return: list of found `WebElement` or e,mpty if elements are not found.
         :rtype: list[selenium.webdriver.remote.webelement.WebElement]
         """
-        return self._loc_elem_engine.find(
+        return self._loc_elem_engine.parse_and_find(
             locator, first_only=False, required=False, parent=parent
         )
 

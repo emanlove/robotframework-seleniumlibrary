@@ -15,11 +15,10 @@
 # limitations under the License.
 import re
 from typing import Union
+from typing import Protocol
 
 from robot.api import logger
 from robot.utils import NormalizedDict
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support.event_firing_webdriver import EventFiringWebElement
 from selenium.webdriver.common.by import By
 
 from SeleniumLibrary.base import ContextAware
@@ -130,8 +129,25 @@ class LocatorElementEngine(ContextAware):
             r"|css ?[:|=]|class ?[:|=]|jquery ?[:|=]|sizzle ?[:|=]|tag ?[:|=]|scLocator ?[:|=])",
             re.IGNORECASE,
         )
+        # Should create a (empty?) list of ElementFinder here
+        # and register the default element finder (and others?) ...
+        # .. but for now hard code an instance of the defaultelementfinder
+        self._element_finder = DefaultElementFinder()
 
-    def find(
+
+# I am wanting to rename what was called the find method
+#   def find(
+# which would do the parsing of the locator string and then call
+# the elementfinder (_find)
+#
+# Thought I might call it execute_find_cycle but really that is
+# the name to give the looping through the element finder list
+#    def execute_find_cycle(
+#
+# Have a generic namer of request but seems too generic ..
+#    def request(...):
+# Going with
+    def parse_and_find(
         self,
         locator: Union[str, list],
         tag=None,
@@ -140,12 +156,18 @@ class LocatorElementEngine(ContextAware):
         parent=None,
     ):
         element = parent
+        # The _split_locator method could be architected as another class, parse_locator
         locators = self._split_locator(locator)
         for split_locator in locators[:-1]:
-            element = self._find(
-                split_locator, first_only=True, required=True, parent=element
-            )
-        return self._find(locators[-1], tag, first_only, required, element)
+            # This where we would loop through the list of element finders..
+            # .. but for now just call the find method on the default element finder.
+            element = self._element_finder.find(split_locator, first_only=True, required=True, parent=element)
+            #
+            # .. was ..
+            # element = self._find
+            #     split_locator, first_only=True, required=True, parent=element
+            # )
+        return self._element_finder.find(locators[-1], tag, first_only, required, element)
 
     def _split_locator(self, locator: Union[str, list]) -> list:
         if isinstance(locator, list):
@@ -164,25 +186,25 @@ class LocatorElementEngine(ContextAware):
         parts.append(locator)
         return parts
 
-    def _find(self, locator, tag=None, first_only=True, required=True, parent=None):
-        element_type = "Element" if not tag else tag.capitalize()
-        if parent and not is_webelement(parent):
-            raise ValueError(
-                f"Parent must be Selenium WebElement but it was {type(parent)}."
-            )
-        if is_webelement(locator):
-            return locator
-        prefix, criteria = self._parse_locator(locator)
-        strategy = self._strategies[prefix]
-        tag, constraints = self._get_tag_and_constraints(tag)
-        elements = strategy(criteria, tag, constraints, parent=parent or self.driver)
-        if required and not elements:
-            raise ElementNotFound(f"{element_type} with locator '{locator}' not found.")
-        if first_only:
-            if not elements:
-                return None
-            return elements[0]
-        return elements
+    # def _find(self, locator, tag=None, first_only=True, required=True, parent=None):
+    #     element_type = "Element" if not tag else tag.capitalize()
+    #     if parent and not is_webelement(parent):
+    #         raise ValueError(
+    #             f"Parent must be Selenium WebElement but it was {type(parent)}."
+    #         )
+    #     if is_webelement(locator):
+    #         return locator
+    #     prefix, criteria = self._parse_locator(locator)
+    #     strategy = self._strategies[prefix]
+    #     tag, constraints = self._get_tag_and_constraints(tag)
+    #     elements = strategy(criteria, tag, constraints, parent=parent or self.driver)
+    #     if required and not elements:
+    #         raise ElementNotFound(f"{element_type} with locator '{locator}' not found.")
+    #     if first_only:
+    #         if not elements:
+    #             return None
+    #         return elements[0]
+    #     return elements
 
     def _get_tag_and_constraints(self, tag):
         if tag is None:

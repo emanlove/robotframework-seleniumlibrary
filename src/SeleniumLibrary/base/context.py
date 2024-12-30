@@ -79,7 +79,7 @@ class ContextAware:
         :raises SeleniumLibrary.errors.ElementNotFound: If element not found
             and `required` is true.
         """
-        return self.element_finder.find(locator, tag, True, required, parent)
+        return self.element_finder.parse_and_find(locator, tag, True, required, parent)
 
     def find_elements(
         self, locator: str, tag: Optional[str] = None, parent: WebElement = None
@@ -97,7 +97,7 @@ class ContextAware:
         :return: list of found `WebElement` or empty if elements are not found.
         :rtype: list[selenium.webdriver.remote.webelement.WebElement]
         """
-        return self.element_finder.find(locator, tag, False, False, parent)
+        return self.element_finder.parse_and_find(locator, tag, False, False, parent)
 
     def is_text_present(self, text: str):
         locator = f"xpath://*[contains(., {escape_xpath_value(text)})]"

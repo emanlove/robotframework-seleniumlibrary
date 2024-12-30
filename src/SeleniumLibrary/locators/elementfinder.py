@@ -120,6 +120,23 @@ class DefaultElementFinder:
             tag = "textarea"
         return tag, constraints
 
+    def _parse_locator(self, locator):
+        if re.match(r"\(*//", locator):
+            return "xpath", locator
+        index = self._get_locator_separator_index(locator)
+        if index != -1:
+            prefix = locator[:index].strip()
+            if prefix in self._strategies:
+                return prefix, locator[index + 1 :].lstrip()
+        return "default", locator
+
+    def _get_locator_separator_index(self, locator):
+        if "=" not in locator:
+            return locator.find(":")
+        if ":" not in locator:
+            return locator.find("=")
+        return min(locator.find("="), locator.find(":"))
+
 
 class LocatorElementEngine(ContextAware):
     def __init__(self, ctx):
@@ -206,65 +223,6 @@ class LocatorElementEngine(ContextAware):
     #         return elements[0]
     #     return elements
 
-    def _get_tag_and_constraints(self, tag):
-        if tag is None:
-            return None, {}
-        tag = tag.lower()
-        constraints = {}
-        if tag == "link":
-            tag = "a"
-        if tag == "partial link":
-            tag = "a"
-        elif tag == "image":
-            tag = "img"
-        elif tag == "list":
-            tag = "select"
-        elif tag == "radio button":
-            tag = "input"
-            constraints["type"] = "radio"
-        elif tag == "checkbox":
-            tag = "input"
-            constraints["type"] = "checkbox"
-        elif tag == "text field":
-            tag = "input"
-            constraints["type"] = [
-                "date",
-                "datetime-local",
-                "email",
-                "month",
-                "number",
-                "password",
-                "search",
-                "tel",
-                "text",
-                "time",
-                "url",
-                "week",
-                "file",
-            ]
-        elif tag == "file upload":
-            tag = "input"
-            constraints["type"] = "file"
-        elif tag == "text area":
-            tag = "textarea"
-        return tag, constraints
-
-    def _parse_locator(self, locator):
-        if re.match(r"\(*//", locator):
-            return "xpath", locator
-        index = self._get_locator_separator_index(locator)
-        if index != -1:
-            prefix = locator[:index].strip()
-            if prefix in self._strategies:
-                return prefix, locator[index + 1 :].lstrip()
-        return "default", locator
-
-    def _get_locator_separator_index(self, locator):
-        if "=" not in locator:
-            return locator.find(":")
-        if ":" not in locator:
-            return locator.find("=")
-        return min(locator.find("="), locator.find(":"))
 
 class Strategies(ContextAware):
     def __init__(self, ctx):

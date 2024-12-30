@@ -95,6 +95,19 @@ Press Keys Without Element Special Keys
     Click Button     OK
     Wait Until Page Contains    Please input text and click the button. Text will appear in the page.     timeout=3
 
+Press Keys To Delete Text
+    [Setup]    Go To Page "forms/prefilled_email_form.html"
+    # check first text is there
+    Element Text Should Be    comment    Prefilled text area
+    ${text}=  Get Property    comment   value
+    Should Be Equal    ${text}    Prefilled text area
+#    Press Keys                comment    ${CTRL_OR_COMMAND}+A  BACKSPACE
+    Press Keys                comment     BACKSPACE
+    Sleep  2secs
+#    Element Text Should Be    comment    ${EMPTY}
+    ${text}=  Get Property    comment   value
+    Should Be Equal   ${text}  Prefilled text are
+
 *** Keywords ***
 CTRL Or Command Key
     ${CTRL_OR_COMMAND} =    Ctrl Or Command Key

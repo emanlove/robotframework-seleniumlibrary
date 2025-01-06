@@ -52,7 +52,10 @@ class FinderList():
     def __len__(self):
         pass
 
-class DefaultElementFinder:
+class DefaultElementFinder(ContextAware):
+    def __init__(self):
+        self._s = Strategies(self)
+
     def pre_find_action(self):
         pass
 
@@ -65,7 +68,7 @@ class DefaultElementFinder:
         if is_webelement(locator):
             return locator
         prefix, criteria = self._parse_locator(locator)
-        strategy = self._strategies[prefix]
+        strategy = self._s._strategies[prefix]
         tag, constraints = self._get_tag_and_constraints(tag)
         elements = strategy(criteria, tag, constraints, parent=parent or self.driver)
         if required and not elements:
@@ -126,7 +129,7 @@ class DefaultElementFinder:
         index = self._get_locator_separator_index(locator)
         if index != -1:
             prefix = locator[:index].strip()
-            if prefix in self._strategies:
+            if prefix in self._s._strategies:
                 return prefix, locator[index + 1 :].lstrip()
         return "default", locator
 
@@ -150,6 +153,7 @@ class LocatorElementEngine(ContextAware):
         # and register the default element finder (and others?) ...
         # .. but for now hard code an instance of the defaultelementfinder
         self._element_finder = DefaultElementFinder()
+        self._strategies = Strategies(ctx)
 
 
 # I am wanting to rename what was called the find method
